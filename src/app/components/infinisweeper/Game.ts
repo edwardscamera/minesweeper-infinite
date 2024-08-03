@@ -37,13 +37,22 @@ export class Game {
         });
 
         // Reveal controls
-        this.viewport.addEventListener("mouseup", (event: MouseEvent) => {
-            const mousePosition = this.camera.screenToWorld({
-                x: event.clientX,
-                y: event.clientY,
-            });
-            this.board.reveal(Math.floor(mousePosition.x), Math.floor(mousePosition.y));
+        this.viewport.addEventListener("mousedown", (downEvent: MouseEvent) => {
+            window.addEventListener("mouseup", (event: MouseEvent) => {
+                if (event.clientX !== downEvent.clientX || event.clientY !== downEvent.clientY) return;
+
+                const mousePosition = this.camera.screenToWorld({
+                    x: downEvent.clientX,
+                    y: downEvent.clientY,
+                });
+    
+                if (event.button === 0)
+                    this.board.reveal(Math.floor(mousePosition.x), Math.floor(mousePosition.y));
+            }, { once: true});
         });
+        
+
+        this.viewport.addEventListener("contextmenu", (event: MouseEvent) => event.preventDefault());
     }
 
     private processFrame(): void {
