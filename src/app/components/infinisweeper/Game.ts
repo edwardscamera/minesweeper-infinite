@@ -13,6 +13,7 @@ export class Game {
         this.g = viewport.getContext("2d") as CanvasRenderingContext2D;
         window.requestAnimationFrame(this.processFrame.bind(this));
 
+        // Pan controls
         this.viewport.addEventListener("mousedown", () => {
             const onMouseMove = (event: MouseEvent) => {
                 this.camera.position.x -= event.movementX / this.camera.ppu;
@@ -24,6 +25,18 @@ export class Game {
             }, { once: true });
         });
 
+        // Zoom controls
+        this.viewport.addEventListener("wheel", (event: WheelEvent) => {
+            const mouse = this.camera.screenToWorld({ x: event.clientX, y: event.clientY });
+
+            this.camera.zoom(Math.sign(event.deltaY));
+
+            const newMouse = this.camera.screenToWorld({ x: event.clientX, y: event.clientY });
+            this.camera.position.x += mouse.x - newMouse.x;
+            this.camera.position.y += mouse.y - newMouse.y;
+        });
+
+        // Reveal controls
         this.viewport.addEventListener("mouseup", (event: MouseEvent) => {
             const mousePosition = this.camera.screenToWorld({
                 x: event.clientX,
