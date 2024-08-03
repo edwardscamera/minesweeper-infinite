@@ -40,8 +40,9 @@ export class Board {
     }
 
     public draw(g: CanvasRenderingContext2D, start: Vector2, end: Vector2) {
+        g.font = `${0.75}px Arial`;
         g.textAlign = "center";
-        
+
         for(let x = start.x; x < end.x; x++) {
             for(let y = start.y; y < end.y; y++) {
                 const tile = this.get(x, y);
@@ -54,17 +55,22 @@ export class Board {
                         g.fillStyle = "black";
                         g.fillRect(x, y, 1, 1);
                     } else if (tile.value > 0) {
-                        const fontSize = 0.5;
                         const text = tile.value.toString();
-                        g.font = `${fontSize}px Arial`;
+
                         g.fillStyle = this.fontColors[tile.value - 1];
-                        g.fillText(text, x + 0.5, y + fontSize / 2 + 0.5);
+                        g.fillText(text, x + 0.5, y + 0.75);
                     }
-                } else if (this.startingTile?.x === x && this.startingTile?.y === y) {
-                    g.globalAlpha = Math.sin(performance.now() / 150) / 2 + 0.5;
-                    g.fillStyle = "#fff";
-                    g.fillRect(x, y, 1, 1);
-                    g.globalAlpha = 1;
+                } else {
+                    if (tile.flagged) {
+                        g.fillStyle = "#f00";
+                        g.fillRect(x, y, 1, 1);
+                    }
+                    if (this.startingTile?.x === x && this.startingTile?.y === y) {
+                        g.globalAlpha = Math.sin(performance.now() / 150) / 2 + 0.5;
+                        g.fillStyle = "#fff";
+                        g.fillRect(x, y, 1, 1);
+                        g.globalAlpha = 1;
+                    }
                 }
             }
         }
@@ -95,6 +101,34 @@ export class Board {
 
     public reveal(x: number, y: number): void {
         const tile = this.get(x, y);
+        if (tile.flagged) return;
+        
+        if (tile.covered) this.revealOnHidden(x, y);
+        else this.revealOnShown(x, y);
+    }
+
+    private revealOnShown(x: number, y: number): void {
+        // Get amount of surrounding flags
+        let flags = 0;
+        for(let xx = x - 1; xx <= x + 1; xx++) {
+            for(let yy = y - 1; yy <= y + 1; yy++) {
+                if ((xx === x && yy === y)) continue;
+                if (this.get(xx, yy).flagged) flags++;
+            }
+        }
+
+        if (flags !== this.get(x, y).value) return;
+
+        for(let xx = x - 1; xx <= x + 1; xx++) {
+            for(let yy = y - 1; yy <= y + 1; yy++) {
+                if ((xx === x && yy === y)) continue;
+                this.revealOnHidden(xx, yy);
+            }
+        }
+    };
+
+    private revealOnHidden(x: number, y: number): void {
+        const tile = this.get(x, y);
         if (!tile.covered || tile.flagged) return;
         tile.covered = false;
 
@@ -109,10 +143,16 @@ export class Board {
             for(let xx = x - 1; xx <= x + 1; xx++) {
                 for(let yy = y - 1; yy <= y + 1; yy++) {
                     if ((xx === x && yy === y)) continue;
-                    this.reveal(xx, yy);
+                    this.revealOnHidden(xx, yy);
                 }
             }
         }
+    }
+
+    public flag(x: number, y: number): void {
+        const tile = this.get(x, y);
+        if (!tile.covered) return;
+        tile.flagged = !tile.flagged;
     }
 
     private random(x: number, y: number): number {

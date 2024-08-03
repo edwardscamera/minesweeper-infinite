@@ -48,9 +48,9 @@ export class Game {
     
                 if (event.button === 0)
                     this.board.reveal(Math.floor(mousePosition.x), Math.floor(mousePosition.y));
+                else this.board.flag(Math.floor(mousePosition.x), Math.floor(mousePosition.y));
             }, { once: true});
         });
-        
 
         this.viewport.addEventListener("contextmenu", (event: MouseEvent) => event.preventDefault());
     }
