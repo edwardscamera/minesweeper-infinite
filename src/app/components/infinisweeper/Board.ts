@@ -72,6 +72,27 @@ export class Board {
                         g.globalAlpha = 1;
                     }
                 }
+
+                if (!tile.covered) {
+                    const borderWidth = 0.1;
+                    g.fillStyle = "#87AF3A";
+                    if (this.get(x + 1, y).covered) // Right
+                        g.fillRect(x + 1 - borderWidth, y, borderWidth, 1);
+                    if (this.get(x - 1, y).covered) // Left
+                        g.fillRect(x, y, borderWidth, 1);
+                    if (this.get(x, y + 1).covered) // Bottom
+                        g.fillRect(x, y + 1 - borderWidth, 1, borderWidth);
+                    if (this.get(x, y - 1).covered) // Top
+                        g.fillRect(x, y, 1, borderWidth);
+                    if (this.get(x - 1, y - 1).covered) // Top Left
+                        g.fillRect(x, y, borderWidth, borderWidth);
+                    if (this.get(x + 1, y - 1).covered) // Top Right
+                        g.fillRect(x + 1 - borderWidth, y, borderWidth, borderWidth);
+                    if (this.get(x - 1, y + 1).covered) // Bottom Left
+                        g.fillRect(x, y + 1 - borderWidth, borderWidth, borderWidth);
+                    if (this.get(x + 1, y + 1).covered) // Bottom Right
+                        g.fillRect(x + 1 - borderWidth, y + 1 - borderWidth, borderWidth, borderWidth);
+                }
             }
         }
 
