@@ -1,9 +1,13 @@
+import { ParticleManager } from "./ParticleManager";
+import { Vector2 } from "./Vector2";
+
 type Address = `${number},${number}`;
 
 export class Board {
     private tiles: Record<Address, Tile> = {};
     private readonly fontColors = ["#1977D3", "#3B8E3F", "#D53734", "#7A1EA2", "#FF8F00", "#159AA4", "#434343", "#A99D93"];
     private startingTile: Vector2 | null = null;
+    private particleManager: ParticleManager = new ParticleManager();
 
     private static getAddress(x: number, y: number): Address {
         return `${x},${y}` as Address;
@@ -96,6 +100,9 @@ export class Board {
             }
         }
 
+        this.particleManager.update();
+        this.particleManager.draw(g);
+
         if (this.startingTile === null) this.findStartingTile({
             x: (end.x + start.x) / 2,
             y: (end.y + start.y) / 2,
@@ -174,6 +181,8 @@ export class Board {
         const tile = this.get(x, y);
         if (!tile.covered) return;
         tile.flagged = !tile.flagged;
+
+        if (!tile.flagged) this.particleManager.createFlag(x, y);
     }
 
     private random(x: number, y: number): number {
@@ -201,9 +210,4 @@ interface Tile {
     flagged: boolean;
     value: number;
     position: Vector2;
-}
-
-interface Vector2 {
-    x: number;
-    y: number;
 }

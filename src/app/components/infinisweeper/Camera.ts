@@ -1,3 +1,5 @@
+import { Vector2 } from "./Vector2";
+
 export class Camera {
     public position: Vector2 = { x: 0, y: 0 };
     public ppu: number = 64;
@@ -19,9 +21,4 @@ export class Camera {
         this.position.x = Math.round(this.position.x * this.ppu) / this.ppu;
         this.position.y = Math.round(this.position.y * this.ppu) / this.ppu;
     }
-}
-
-interface Vector2 {
-    x: number;
-    y: number;
 }
